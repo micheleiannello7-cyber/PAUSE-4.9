@@ -302,7 +302,6 @@ function ModeToggle({
       testID={testID}
       active={active}
       accentColor={colors.cyan}
-      blur
       radius={radius.lg + 6}
       accessibilityRole="switch"
       accessibilityState={{ checked: active }}

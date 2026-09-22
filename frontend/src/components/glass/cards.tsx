@@ -11,7 +11,7 @@
 // Stesso linguaggio del pulsante "Ascolta" della reading screen.
 
 import React from "react";
-import { View, Text, Pressable, ActivityIndicator, StyleProp, ViewStyle, StyleSheet } from "react-native";
+import { View, Text, Pressable, ActivityIndicator, StyleProp, ViewStyle, StyleSheet, Platform } from "react-native";
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -173,7 +173,9 @@ export function GlassPressable({
           scaleStyle,
         ]}
       >
-        {blur ? (
+        {/* Blur solo su nativo: su web expo-blur aggiunge un velo grigio (tint)
+            che rende il vetro opaco. */}
+        {blur && Platform.OS !== "web" ? (
           <BlurView
             intensity={18}
             tint={tint}
@@ -181,21 +183,13 @@ export function GlassPressable({
             style={[StyleSheet.absoluteFill, { borderRadius: r }]}
           />
         ) : null}
-        {/* Vetro VERO: quasi trasparente, il fondo passa attraverso; solo un
-            velo freddo appena percettibile + riflesso in alto e bordo luminoso. */}
+        {/* Vetro VERO: nessun velo bianco/grigio dentro la card. Il fondo passa
+            attraverso; solo un'impercettibile tinta fredda, il bordo luminoso e
+            la linea di riflesso sul bordo alto. */}
         <View
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { borderRadius: r, backgroundColor: colors.glassTint }]}
         />
-        <LinearGradient
-          pointerEvents="none"
-          colors={[colors.glassFrost, "transparent"]}
-          locations={[0, 0.7]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={[StyleSheet.absoluteFill, { borderRadius: r }]}
-        />
-        <Sheen radius={r} strength={0.9} />
         {lightFrom ? (
           <LinearGradient
             pointerEvents="none"
@@ -357,12 +351,14 @@ export function GlassCTA({
         accessibilityState={{ disabled: !!disabled }}
         style={[{ height, borderRadius: r, overflow: "hidden" }, scaleStyle]}
       >
-        <BlurView
-          intensity={44}
-          tint={tint}
-          experimentalBlurMethod="dimezisBlurView"
-          style={[StyleSheet.absoluteFill, { borderRadius: r }]}
-        />
+        {Platform.OS !== "web" ? (
+          <BlurView
+            intensity={44}
+            tint={tint}
+            experimentalBlurMethod="dimezisBlurView"
+            style={[StyleSheet.absoluteFill, { borderRadius: r }]}
+          />
+        ) : null}
         <View
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { borderRadius: r, backgroundColor: colors.glassTint }]}

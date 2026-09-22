@@ -65,7 +65,6 @@ export function CategoryGrid({
         active={allActive}
         accentColor={colors.cyan}
         lightFrom={colors.cyan}
-        blur
         radius={TILE_RADIUS}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: allActive }}
