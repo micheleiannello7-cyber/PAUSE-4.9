@@ -58,6 +58,11 @@ const darkBase = {
   glassShadow: "rgba(0,0,0,0.45)",          // shadow diffusa per depth
   glassBgLit: "rgba(255,255,255,0.09)",     // vetro "illuminato" sopra le foto
   glassSheen: "rgba(255,255,255,0.13)",     // riflesso frosted dall'alto
+  // Vetro "blu notte" delle card selezionabili (interessi): tinta fredda che
+  // lascia passare la luce del bokeh; bordo azzurrino appena luminoso.
+  glassTint: "rgba(120,175,255,0.085)",
+  glassTintBorder: "rgba(170,215,255,0.26)",
+  glassRing: "rgba(255,255,255,0.38)",      // anello selettore inattivo
   // Reading experience: bianco caldo per titolo/testo, tinta notte sull'immagine.
   textWarm: "#F7F3EB",
   textWarmSecondary: "#D9D4C9",
@@ -105,6 +110,9 @@ const lightBase: typeof darkBase = {
   glassShadow: "rgba(28,33,48,0.18)",
   glassBgLit: "rgba(255,255,255,0.62)",
   glassSheen: "rgba(255,255,255,0.80)",
+  glassTint: "rgba(255,255,255,0.62)",
+  glassTintBorder: "rgba(11,14,23,0.10)",
+  glassRing: "rgba(11,14,23,0.30)",
   textWarm: "#0B0E17",
   textWarmSecondary: "#2A3040",
   nightTint: "rgba(255,255,255,0)",
@@ -155,6 +163,8 @@ export function buildColors(scheme: ColorScheme, accentId: AccentId) {
   // stato attivo / audio, indipendente dall'accento della categoria.
   const cyan = scheme === "dark" ? "#3FE0FF" : "#0891B2";
   const cyanSoft = scheme === "dark" ? "#7FE9FF" : "#22B8DE";
+  // Azzurro pallido luminoso per parole evidenziate nei titoli ("leggere?").
+  const cyanPale = scheme === "dark" ? "#A9DCFF" : "#1B8FBF";
   return {
     ...base,
     brand: accent.brand,
@@ -174,6 +184,7 @@ export function buildColors(scheme: ColorScheme, accentId: AccentId) {
     // progress, audio, glow. Rimane costante fra accenti.
     cyan,
     cyanSoft,
+    cyanPale,
     cyanGlow: scheme === "dark" ? "rgba(63,224,255,0.32)" : "rgba(8,145,178,0.20)",
     cyanGlowSoft: scheme === "dark" ? "rgba(63,224,255,0.14)" : "rgba(8,145,178,0.10)",
   };

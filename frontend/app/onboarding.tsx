@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Pressable, useWindowDimensions, StyleSheet } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, Pressable, useWindowDimensions, StyleSheet, Platform } from "react-native";
 import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -16,7 +16,7 @@ import { CategoryGrid, toggleInterest } from "@/src/components/category-grid";
 import { PagerDots } from "@/src/components/pager";
 import { HighlightedTitle } from "@/src/components/highlighted-title";
 import { GlassIconButton } from "@/src/components/glass";
-import { GlassBackdrop, GlassPressable, GlassCTA } from "@/src/components/glass/cards";
+import { GlassBackdrop, GlassPressable, GlassCheck, GlassCTA } from "@/src/components/glass/cards";
 import { GradientOrb } from "@/src/components/category-orb";
 import { useI18n } from "@/src/i18n";
 
@@ -171,6 +171,11 @@ export default function Onboarding() {
   // Dark cinematic + glass: fondo notte con bagliori ambientali, card vetro
   // (modalità, "qualsiasi argomento", griglia categorie), CTA glass cyan/viola.
   const lastWord = (t.onb_content_q.trim().split(/\s+/).pop() ?? "").replace(/[^\p{L}\p{N}]/gu, "");
+  // Titolo su una riga anche su telefoni stretti; su schermi < 380dp le card
+  // modalità non hanno spazio per l'anello selettore (lo stato resta evidente
+  // grazie a bordo cyan, glow e orb colorato).
+  const titleSize = Math.min(34, Math.round(winW * 0.086));
+  const narrow = winW < 380;
   return (
     <View style={[styles.container, { paddingTop: insets.top }]} testID="onboarding-topics">
       <GlassBackdrop />
@@ -217,9 +222,9 @@ export default function Onboarding() {
             <HighlightedTitle
               title={t.onb_content_q}
               highlight={[lastWord]}
-              highlightColor={colors.cyanSoft}
+              highlightColor={colors.cyanPale}
               highlightStyle={styles.stepTitleGlow}
-              style={styles.stepTitle}
+              style={[styles.stepTitle, { fontSize: titleSize, lineHeight: titleSize + 6 }]}
             />
           </Animated.View>
 
@@ -232,6 +237,7 @@ export default function Onboarding() {
               onPress={() => toggleMode("stories")}
               styles={styles}
               colors={colors}
+              showCheck={!narrow}
               testID="onboarding-mode-stories"
             />
             <ModeToggle
@@ -241,6 +247,7 @@ export default function Onboarding() {
               onPress={() => toggleMode("lessons")}
               styles={styles}
               colors={colors}
+              showCheck={!narrow}
               testID="onboarding-mode-lessons"
             />
           </Animated.View>
@@ -284,10 +291,10 @@ export default function Onboarding() {
 // Card vetro orizzontale: orb (gradiente cyan da attiva, vetro neutro da
 // inattiva) + etichetta + anello/check. Attiva = bordo cyan luminoso e glow.
 function ModeToggle({
-  glyph, label, active, onPress, styles, colors, testID,
+  glyph, label, active, onPress, styles, colors, showCheck = true, testID,
 }: {
   glyph: string; label: string; active: boolean; onPress: () => void;
-  styles: any; colors: any; testID: string;
+  styles: any; colors: any; showCheck?: boolean; testID: string;
 }) {
   return (
     <GlassPressable
@@ -303,15 +310,21 @@ function ModeToggle({
       contentStyle={styles.modeContent}
     >
       {active ? (
-        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph={glyph} size={36} radiusOverride={12} active glyphScale={0.58} />
+        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph={glyph} size={32} radiusOverride={10} active glyphScale={0.6} />
       ) : (
         <View style={styles.modeOrbIdle}>
-          <MaterialDesignIcons name={glyph as any} size={20} color={colors.muted} />
+          <MaterialDesignIcons name={glyph as any} size={19} color={colors.onSurfaceTertiary} />
         </View>
       )}
-      <Text style={[styles.modeLabel, active && { color: colors.onSurface }]} numberOfLines={2}>
+      <Text
+        style={[styles.modeLabel, active && { color: colors.onSurface }]}
+        numberOfLines={Platform.OS === "web" ? 2 : 1}
+        adjustsFontSizeToFit={Platform.OS !== "web"}
+        minimumFontScale={0.78}
+      >
         {label}
       </Text>
+      {showCheck ? <GlassCheck active={active} color={colors.cyanSoft} size={18} /> : null}
     </GlassPressable>
   );
 }
@@ -360,14 +373,14 @@ const useStyles = makeStyles((colors) => ({
   modeRow: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.lg + 4 },
   modeCard: { flex: 1 },
   modeContent: {
-    flexDirection: "row", alignItems: "center", gap: spacing.sm + 2,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.md - 1, minHeight: 60,
+    flexDirection: "row", alignItems: "center", gap: 7,
+    paddingHorizontal: 9, paddingVertical: spacing.md - 1, minHeight: 58,
   },
   modeOrbIdle: {
-    width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center",
-    backgroundColor: colors.glassBg, borderWidth: 1, borderColor: colors.glassBorder,
+    width: 32, height: 32, borderRadius: 10, alignItems: "center", justifyContent: "center",
+    backgroundColor: colors.glassTint, borderWidth: 1, borderColor: colors.glassTintBorder,
   },
-  modeLabel: { flex: 1, color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 14, lineHeight: 18 },
+  modeLabel: { flex: 1, color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 13.5, lineHeight: 17, letterSpacing: -0.2 },
   title: { color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 22, lineHeight: 27, marginBottom: spacing.xs },
   subtitle: { color: colors.muted, fontFamily: typography.body, fontSize: 13.5, lineHeight: 19, marginBottom: spacing.md + 2 },
   dots: { alignSelf: "center", marginBottom: spacing.sm + 2 },

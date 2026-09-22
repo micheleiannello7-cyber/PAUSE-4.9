@@ -13,7 +13,7 @@ import { catVisual } from "@/src/categories";
 
 // Bordo/riflesso bianco: sta sopra un gradiente colorato, identico in ogni tema.
 const EDGE = "rgba(255,255,255,0.34)";
-const SHEEN = "rgba(255,255,255,0.42)";
+const SHEEN = "rgba(255,255,255,0.50)";
 
 export function GradientOrb({
   gradient,
@@ -48,7 +48,7 @@ export function GradientOrb({
           overflow: "hidden",
           boxShadow: `0px ${Math.round(size * 0.1)}px ${Math.round(size * 0.4)}px ${withAlpha(
             gradient[1],
-            active ? (isDark ? 0.42 : 0.3) : (isDark ? 0.26 : 0.18),
+            active ? (isDark ? 0.55 : 0.3) : (isDark ? 0.38 : 0.18),
           )}` as any,
         },
         style,
@@ -57,7 +57,7 @@ export function GradientOrb({
       {/* Base vetro, poi tinta d'accento semi-trasparente: la luce attraversa il vetro. */}
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.glassBgStrong }]} />
       <LinearGradient
-        colors={[withAlpha(gradient[0], isDark ? 0.86 : 0.92), withAlpha(gradient[1], isDark ? 0.72 : 0.85)]}
+        colors={[withAlpha(gradient[0], isDark ? 0.95 : 0.95), withAlpha(gradient[1], isDark ? 0.88 : 0.9)]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}

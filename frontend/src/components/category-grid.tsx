@@ -21,7 +21,7 @@ export function toggleInterest(prev: Set<string>, id: string): Set<string> {
   return next;
 }
 
-const GAP = 10;
+const GAP = 12;
 const COLS = 3;
 const TILE_RADIUS = 22;
 // Blur reale su 13 tile è costoso su Android (dimezis): lì basta la traslucenza.
@@ -63,6 +63,7 @@ export function CategoryGrid({
         onPress={() => onToggle(ALL_ID)}
         active={allActive}
         accentColor={colors.cyan}
+        lightFrom={colors.cyan}
         blur
         radius={TILE_RADIUS}
         accessibilityRole="checkbox"
@@ -71,7 +72,7 @@ export function CategoryGrid({
         style={styles.allCard}
         contentStyle={styles.allContent}
       >
-        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph="all-inclusive" size={46} radiusOverride={15} active={allActive} />
+        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph="all-inclusive" size={44} radiusOverride={14} active={allActive} />
         <View style={{ flex: 1 }}>
           <Text style={styles.allName} numberOfLines={1}>{t.any_topic}</Text>
           <Text style={styles.allSub} numberOfLines={1}>{t.any_topic_sub}</Text>
@@ -90,6 +91,7 @@ export function CategoryGrid({
               onPress={() => onToggle(c.id)}
               active={active}
               accentColor={accent}
+              activeStrength={0.7}
               blur={TILE_BLUR}
               radius={TILE_RADIUS}
               accessibilityRole="checkbox"
@@ -99,7 +101,7 @@ export function CategoryGrid({
               contentStyle={styles.tileContent}
             >
               <View style={styles.tileTop}>
-                <CategoryOrb id={c.id} size={42} active={active} />
+                <CategoryOrb id={c.id} size={38} radiusOverride={12} active={active} />
                 <GlassCheck active={active} color={accent} size={18} idle="chevron" />
               </View>
               <Text style={styles.tileName} numberOfLines={2}>{c.name}</Text>
@@ -116,7 +118,7 @@ const useStyles = makeStyles((colors) => ({
   allCard: { marginBottom: spacing.md },
   allContent: {
     flexDirection: "row", alignItems: "center", gap: spacing.md,
-    paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 74,
+    paddingHorizontal: spacing.md + 2, paddingVertical: spacing.md, minHeight: 72,
   },
   allName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 15.5 },
   allSub: { color: colors.muted, fontFamily: typography.body, fontSize: 12.5, marginTop: 2 },
@@ -124,9 +126,9 @@ const useStyles = makeStyles((colors) => ({
   grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP },
   tileFallback: { width: "31%" },
   tileContent: {
-    minHeight: 118, padding: spacing.md, paddingBottom: spacing.md, gap: 3,
+    minHeight: 100, paddingHorizontal: 11, paddingTop: 11, paddingBottom: 11, gap: 2,
   },
-  tileTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: spacing.sm - 2 },
-  tileName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 13, lineHeight: 17 },
+  tileTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 7 },
+  tileName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 12.5, lineHeight: 16 },
   tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 10.5, lineHeight: 13, marginTop: "auto" },
 }));
