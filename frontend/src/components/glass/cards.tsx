@@ -56,12 +56,9 @@ export function GlassBackdrop({ style }: { style?: StyleProp<ViewStyle> }) {
     return (
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, { overflow: "hidden", backgroundColor: colors.surface }, style]}>
         <Image source={BOKEH} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="center" transition={300} />
-        {/* Scrim leggero: tiene i testi leggibili senza spegnere il bokeh. */}
-        <LinearGradient
-          colors={[withAlpha(colors.surface, 0.70), withAlpha(colors.surface, 0.38), withAlpha(colors.surface, 0.50)]}
-          locations={[0, 0.45, 1]}
-          style={StyleSheet.absoluteFill}
-        />
+        {/* Scrim UNIFORME: stessa tinta su tutta l'altezza, così le card in basso
+            hanno lo stesso colore di quelle in alto. */}
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(colors.surface, 0.40) }]} />
       </View>
     );
   }
@@ -178,25 +175,27 @@ export function GlassPressable({
       >
         {blur ? (
           <BlurView
-            intensity={14}
+            intensity={18}
             tint={tint}
             experimentalBlurMethod="dimezisBlurView"
             style={[StyleSheet.absoluteFill, { borderRadius: r }]}
           />
         ) : null}
-        {/* Vetro smerigliato: opacatura frosted (tinta blu-notte + velo bianco), poca sfocatura. */}
+        {/* Vetro VERO: quasi trasparente, il fondo passa attraverso; solo un
+            velo freddo appena percettibile + riflesso in alto e bordo luminoso. */}
         <View
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { borderRadius: r, backgroundColor: colors.glassTint }]}
         />
         <LinearGradient
           pointerEvents="none"
-          colors={[colors.glassFrost, withAlpha(colors.surface, isDark ? 0.22 : 0)]}
+          colors={[colors.glassFrost, "transparent"]}
+          locations={[0, 0.7]}
           start={{ x: 0, y: 0 }}
-          end={{ x: 0.6, y: 1 }}
+          end={{ x: 0.5, y: 1 }}
           style={[StyleSheet.absoluteFill, { borderRadius: r }]}
         />
-        <Sheen radius={r} strength={1} />
+        <Sheen radius={r} strength={0.9} />
         {lightFrom ? (
           <LinearGradient
             pointerEvents="none"
@@ -230,7 +229,7 @@ export function GlassPressable({
           // Luce del colore dell'icona che entra dal bordo (in alto a sinistra) e sfuma.
           <LinearGradient
             pointerEvents="none"
-            colors={[withAlpha(accent, isDark ? 0.16 : 0.10), withAlpha(accent, 0)]}
+            colors={[withAlpha(accent, isDark ? 0.07 : 0.06), withAlpha(accent, 0)]}
             locations={[0, 0.7]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
