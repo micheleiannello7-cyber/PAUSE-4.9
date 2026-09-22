@@ -1,0 +1,26 @@
+{
+  "summary": "Backend + Frontend regression on PAUSE iter20. Bug fix verified: reading_time_min and deep_dive_time_min are now derived from real TTS text (title+hook+chapters+summary) at 12.5 chars/sec + 1.5s per chapter pause + 1.5s intro pause, ceil()'d to minutes. 6/6 pytest cases pass on the public URL including: every story has positive int minutes; list reading_time_min == deep_dive_time_min; 6 sample stories match the local estimator computed from the full detail doc; list and detail agree per lang; EN list and EN detail agree; when EN translation exists, deep_dive_time_min is computed from the translated text. UI: badge on discover matches API (e.g. nat-tides → 4 min, v4-microonde → 7 min); Continue Reading Ribbon (resume-reading-card) shows glass card with progress % + title after leaving a story mid-way; Topics/Explore renders 13 glass tiles that gain a colored glow border with the category color when tapped (Science cyan, Nature green, Space purple). No React Native / Expo deprecated packages surfaced during the flow.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter20_audio_estimate.py",
+    "/app/test_reports/pytest/iter20.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is 1397 lines — consider splitting into routers (stories, tts, user, etc.) for maintainability; not blocking.",
+    "_estimated_audio_minutes falls back to _estimated_audio_minutes(doc) when list projection lacks chapters — since ensure_estimated_minutes runs at boot this is fine, but any new story added at runtime won't get audio_minutes_est until a restart. Consider computing on write."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "100%", "frontend": "100%" },
+  "seed_data_creation": "None. Used existing 437 seeded stories.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "EXPO_PUBLIC_BACKEND_URL is used by pytest; onboarding flow requires clicking 'Start your pause', then at least one topic, then 'Start discovering' before reaching /discover. The resume-reading-card only appears after opening a story deep-dive at least once. Tests are in /app/backend/tests/test_iter20_audio_estimate.py.",
+  "rca_of_issue": "Original bug: badge showed '3 min' while the OpenAI TTS narration ran 4:50. Root cause: badge used a static field seeded from an author-provided estimate that ignored chapters/pauses. Fix (verified): _estimated_audio_minutes computes total narrated chars from title+hook+chapters+summary at 12.5 chars/sec plus 1.5s chapter pauses and 1.5s intro pause, then math.ceil()'s to whole minutes. ensure_estimated_minutes precomputes audio_minutes_est.{it,en} per story at boot, and _localize overrides reading_time_min/deep_dive_time_min with that value in both list and detail. Reproduced by asserting that the ceil formula equals the API value for 6 random stories (all pass)."
+}

@@ -1,0 +1,42 @@
+# PΛUSE — Preview attiva + Design System Glassmorphism
+
+## Preview
+- Codice PAUSE-4.7 completo copiato in `/app`; `.env` di sistema preservati
+- Backend attivo su :8001, seed automatico **13 categorie · 437 storie**
+- Expo/Metro attivo su :3000
+- `EMERGENT_LLM_KEY` per TTS OpenAI + Object Storage; `ENFORCE_LIMIT=false`
+
+## Bug fix — Badge minuti coerente col TTS reale
+- **Prima**: badge "3 min" ma player 4:50 (seed hardcoded, non allineato al testo reale)
+- **Ora**: `deep_dive_time_min` e `reading_time_min` calcolati a runtime da title+hook+capitoli+summary, con 12.5 char/s (Italian OpenAI TTS) + 1.5s pausa per capitolo + 1.5s intro, **CEIL** ai minuti pieni
+- Precomputo al boot in `ensure_estimated_minutes()` → salvato come `audio_minutes_est: {it, en}` per non ripagare a ogni richiesta (i list endpoint escludono `chapters` dalla projection)
+- `_localize()` fa override in output. Verificato via testing_agent: list ↔ detail coerenti IT/EN, ceil corretto su 6 storie campione
+
+## Design System Glassmorphism
+- Token vetro condivisi in `src/theme.ts`: `glassBg`, `glassBgStrong`, `glassBorder`, `glassHighlight`, `glassShadow`, `cyan`, `cyanGlow`
+- Primitive in `src/components/glass/`: `GlassSurface`, `GlassPill`, `GlassIconButton`, `GlowButton` (con animazione morbida quando l'audio è attivo)
+- Componenti aggiornati: reader-meta, reader-nav, home-button, IntroListenButton, gradient-button, tab bar, deep-dive top bar, story audio player styles
+
+## Nuove UI (iterazione 2)
+- **Continue Reading Ribbon**: barra vetro cyan in cima alla Home con thumbnail glow, percentuale letto e tasto Play — riprende in un tap l'ultima storia interrotta
+- **Glass Home Cards**: card Discover con ring esterno vetro molto sottile + soft cyan shadow
+- **Glass Explore Grid**: tessere Topics in vetro; quando attive, glow del colore della categoria (verde per Natura, viola per Spazio, arancio per Animali, ecc.) + tick colorato
+
+## Regole rispettate
+- Nessuna modifica a logica app, API, autenticazione, TTS, navigazione, DB schema
+- Cyan luminoso come colore principale per azioni interattive
+- Categorie mantengono il loro colore, integrato nel sistema glass
+- Tutti i colori dal theme; hex literali solo dove servono uguali in light/dark
+
+## Prossimi passi consigliati
+- Ricomputo `audio_minutes_est` on-write per storie aggiunte a runtime
+- Estendere lo stile glass anche a Profile / Stats / Playlist
+
+## Ripristino progetto + Redesign icone categorie (glassmorphism completo)
+- Progetto PAUSE ripristinato in `/app` da PAUSE-4.8 (frontend+backend), `.env` di sistema preservati; aggiunte `EMERGENT_LLM_KEY` e `ENFORCE_LIMIT=false`. Risolto il crash `502 /user/content-modes` (era solo backend non attivo + chiave mancante).
+- **Nuova identità visiva categorie**: `src/categories.ts` (mappa centralizzata id → gradiente + glyph MaterialDesignIcons espressivo) + `src/components/category-orb.tsx` (`CategoryOrb`/`GradientOrb`: squircle a gradiente, sheen frosted, bordo luminoso, glow, glyph bianco leggibile in chiaro e scuro).
+- Applicato ovunque: griglia Topics (Explore + onboarding), tile categorie Home, cover storie (`StoryHero`/`LessonCover`), `CategoryTag` del lettore, header sezioni Salvati.
+- **Tema chiaro leggibile ovunque**: convertite a `useTheme()/makeStyles()` le uniche 2 schermate ancora su `colors` statici (dark fisso): `bookmarks.tsx` e `pause-limit.tsx`.
+- Playlist portata a superfici vetro (card + righe).
+- Verificato via screenshot in dark e light: Explore, Home, Profile, Saved.
+
