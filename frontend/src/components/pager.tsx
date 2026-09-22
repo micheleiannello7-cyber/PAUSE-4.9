@@ -7,7 +7,7 @@ import {
   NativeSyntheticEvent, NativeScrollEvent, StyleProp, ViewStyle,
 } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import { makeStyles, useTheme, spacing, typography } from "@/src/theme";
+import { makeStyles, useTheme, spacing, typography, withAlpha } from "@/src/theme";
 
 export type PagerHandle = { goTo: (index: number, animated?: boolean) => void };
 
@@ -82,8 +82,8 @@ export const Pager = forwardRef<PagerHandle, PagerProps>(function Pager(
 
 // Row of dots; the active one stretches into a short pill in the accent colour.
 export function PagerDots({
-  count, index, color, style, testID = "pager-dots",
-}: { count: number; index: number; color?: string; style?: StyleProp<ViewStyle>; testID?: string }) {
+  count, index, color, luminous, style, testID = "pager-dots",
+}: { count: number; index: number; color?: string; luminous?: boolean; style?: StyleProp<ViewStyle>; testID?: string }) {
   const s = useDotStyles();
   const { colors } = useTheme();
   const active = color ?? colors.brand;
@@ -92,7 +92,12 @@ export function PagerDots({
       {Array.from({ length: count }, (_, i) => (
         <View
           key={i}
-          style={[s.dot, i === index && { width: 20, backgroundColor: active }]}
+          style={[
+            s.dot,
+            luminous && s.dotQuiet,
+            i === index && { width: 20, backgroundColor: active },
+            i === index && luminous && { height: 4, borderRadius: 2, boxShadow: `0px 0px 10px ${withAlpha(active, 0.6)}` as any },
+          ]}
           testID={i === index ? "pager-dot-active" : undefined}
         />
       ))}
@@ -144,6 +149,7 @@ const styles = StyleSheet.create({ fill: { flex: 1 } });
 const useDotStyles = makeStyles((colors) => ({
   row: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.borderStrong },
+  dotQuiet: { width: 5, height: 4, borderRadius: 2, backgroundColor: colors.glassBorderStrong },
   navRow: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: spacing.xl,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, LayoutChangeEvent } from "react-native";
+import { View, Text, LayoutChangeEvent, Platform } from "react-native";
 import { Category } from "@/src/api";
 import { makeStyles, useTheme, spacing, typography } from "@/src/theme";
 import { useI18n } from "@/src/i18n";
@@ -24,6 +24,8 @@ export function toggleInterest(prev: Set<string>, id: string): Set<string> {
 const GAP = 10;
 const COLS = 3;
 const TILE_RADIUS = 22;
+// Blur reale su 13 tile è costoso su Android (dimezis): lì basta la traslucenza.
+const TILE_BLUR = Platform.OS !== "android";
 
 // Glass picker: a full-width "any topic" card on top, then a regular
 // 3-column grid of frosted tiles (icon orb → name → count, chevron that turns
@@ -69,12 +71,12 @@ export function CategoryGrid({
         style={styles.allCard}
         contentStyle={styles.allContent}
       >
-        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph="all-inclusive" size={48} radiusOverride={16} active={allActive} />
+        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph="all-inclusive" size={46} radiusOverride={15} active={allActive} />
         <View style={{ flex: 1 }}>
           <Text style={styles.allName} numberOfLines={1}>{t.any_topic}</Text>
           <Text style={styles.allSub} numberOfLines={1}>{t.any_topic_sub}</Text>
         </View>
-        <GlassCheck active={allActive} color={colors.cyanSoft} size={24} />
+        <GlassCheck active={allActive} color={colors.cyanSoft} size={22} />
       </GlassPressable>
 
       <View style={styles.grid}>
@@ -88,6 +90,7 @@ export function CategoryGrid({
               onPress={() => onToggle(c.id)}
               active={active}
               accentColor={accent}
+              blur={TILE_BLUR}
               radius={TILE_RADIUS}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: active }}
@@ -96,10 +99,10 @@ export function CategoryGrid({
               contentStyle={styles.tileContent}
             >
               <View style={styles.tileTop}>
-                <CategoryOrb id={c.id} size={44} active={active} />
-                <GlassCheck active={active} color={accent} size={20} idle="chevron" />
+                <CategoryOrb id={c.id} size={42} active={active} />
+                <GlassCheck active={active} color={accent} size={18} idle="chevron" />
               </View>
-              <Text style={[styles.tileName, active && { color: colors.onSurface }]} numberOfLines={2}>{c.name}</Text>
+              <Text style={styles.tileName} numberOfLines={2}>{c.name}</Text>
               <Text style={styles.tileCount} numberOfLines={1}>{countFor(c)}</Text>
             </GlassPressable>
           );
@@ -113,17 +116,17 @@ const useStyles = makeStyles((colors) => ({
   allCard: { marginBottom: spacing.md },
   allContent: {
     flexDirection: "row", alignItems: "center", gap: spacing.md,
-    paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 78,
+    paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 74,
   },
-  allName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 16 },
+  allName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 15.5 },
   allSub: { color: colors.muted, fontFamily: typography.body, fontSize: 12.5, marginTop: 2 },
 
   grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP },
   tileFallback: { width: "31%" },
   tileContent: {
-    minHeight: 132, padding: spacing.md, paddingBottom: spacing.md + 2, gap: 4,
+    minHeight: 118, padding: spacing.md, paddingBottom: spacing.md, gap: 3,
   },
-  tileTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: spacing.sm },
-  tileName: { color: colors.onSurfaceSecondary, fontFamily: typography.bodyBold, fontSize: 13, lineHeight: 17 },
-  tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 11, lineHeight: 14, marginTop: "auto" },
+  tileTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: spacing.sm - 2 },
+  tileName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 13, lineHeight: 17 },
+  tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 10.5, lineHeight: 13, marginTop: "auto" },
 }));

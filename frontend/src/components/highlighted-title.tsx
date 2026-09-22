@@ -7,12 +7,14 @@ export function HighlightedTitle({
   highlight,
   style,
   highlightColor,
+  highlightStyle,
   numberOfLines,
 }: {
   title: string;
   highlight: string[];
   style?: StyleProp<TextStyle>;
   highlightColor?: string;
+  highlightStyle?: StyleProp<TextStyle>;
   numberOfLines?: number;
 }) {
   const { colors } = useTheme();
@@ -27,7 +29,7 @@ export function HighlightedTitle({
         return (
           <Text
             key={i}
-            style={isMatch ? { color: hc, fontFamily: typography.displayBold } : undefined}
+            style={isMatch ? [{ color: hc, fontFamily: typography.displayBold }, highlightStyle] : undefined}
           >
             {t}
           </Text>

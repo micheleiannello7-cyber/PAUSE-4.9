@@ -218,6 +218,7 @@ export default function Onboarding() {
               title={t.onb_content_q}
               highlight={[lastWord]}
               highlightColor={colors.cyanSoft}
+              highlightStyle={styles.stepTitleGlow}
               style={styles.stepTitle}
             />
           </Animated.View>
@@ -267,7 +268,7 @@ export default function Onboarding() {
           locations={[0, 0.55]}
           style={StyleSheet.absoluteFill}
         />
-        <PagerDots count={2} index={1} color={colors.cyan} style={styles.dots} testID="onboarding-dots" />
+        <PagerDots count={2} index={1} color={colors.cyan} luminous style={styles.dots} testID="onboarding-dots" />
         <GlassCTA
           label={t.onb_cta}
           onPress={onContinue}
@@ -347,29 +348,31 @@ const useStyles = makeStyles((colors) => ({
   },
   introCtaText: { color: "#FFFFFF", fontFamily: typography.bodyBold, fontSize: 17 },
   dotsBelow: { alignSelf: "center", marginTop: spacing.md, height: 10 },
-  backRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm + 2, marginBottom: spacing.lg },
+  backRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm + 2, marginBottom: spacing.md + 2 },
   backLinkText: { color: colors.onSurfaceTertiary, fontFamily: typography.bodyMedium, fontSize: 15 },
-  sectionLabel: { color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 11.5, letterSpacing: 2.2, marginBottom: spacing.sm },
+  sectionLabel: { color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 11.5, letterSpacing: 2.4, marginBottom: spacing.xs + 2 },
   stepTitle: {
-    color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 34, lineHeight: 40, marginBottom: spacing.xl,
-    textShadowColor: colors.cyanGlowSoft, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 18,
+    color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 34, lineHeight: 40, letterSpacing: -0.4, marginBottom: spacing.lg + 2,
   },
-  modeRow: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.xl + 4 },
+  stepTitleGlow: {
+    textShadowColor: colors.cyanGlow, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 16,
+  },
+  modeRow: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.lg + 4 },
   modeCard: { flex: 1 },
   modeContent: {
     flexDirection: "row", alignItems: "center", gap: spacing.sm + 2,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.md, minHeight: 64,
+    paddingHorizontal: spacing.md, paddingVertical: spacing.md - 1, minHeight: 60,
   },
   modeOrbIdle: {
     width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center",
-    backgroundColor: colors.glassBgLit, borderWidth: 1, borderColor: colors.glassBorder,
+    backgroundColor: colors.glassBg, borderWidth: 1, borderColor: colors.glassBorder,
   },
   modeLabel: { flex: 1, color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 14, lineHeight: 18 },
   title: { color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 22, lineHeight: 27, marginBottom: spacing.xs },
-  subtitle: { color: colors.onSurfaceTertiary, fontFamily: typography.body, fontSize: 14, lineHeight: 20, marginBottom: spacing.lg },
-  dots: { alignSelf: "center", marginBottom: spacing.md },
+  subtitle: { color: colors.muted, fontFamily: typography.body, fontSize: 13.5, lineHeight: 19, marginBottom: spacing.md + 2 },
+  dots: { alignSelf: "center", marginBottom: spacing.sm + 2 },
   footer: {
-    paddingHorizontal: spacing.xl, paddingTop: spacing.md,
+    paddingHorizontal: spacing.xl, paddingTop: spacing.sm,
   },
   errorWrap: {
     flex: 1, alignItems: "center", justifyContent: "center",

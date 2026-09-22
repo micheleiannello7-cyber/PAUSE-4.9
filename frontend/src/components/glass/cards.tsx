@@ -13,6 +13,7 @@ import React from "react";
 import { View, Text, Pressable, ActivityIndicator, StyleProp, ViewStyle, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Defs, RadialGradient, Stop, Ellipse } from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import Animated, {
@@ -26,7 +27,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { withAlpha, spacing, typography } from "@/src/theme";
-import { AmbientGlow, useGlassPalette } from "@/src/components/glass";
+import { useGlassPalette } from "@/src/components/glass";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 // Bordo/riflessi bianchi: identici in tema chiaro e scuro (stanno sopra gradienti).
@@ -45,12 +46,13 @@ function Sheen({ radius: r, strength = 1 }: { radius: number; strength?: number 
 }
 
 // --- GlassBackdrop --------------------------------------------------------
-// Sfondo quasi nero/blu notte con tre bagliori molto diffusi (cyan, viola,
-// ambra) per dare profondità senza rubare la scena alle card.
+// Sfondo quasi nero / blu notte con luce ambientale diffusa (cyan dall'alto a
+// destra, viola dal basso a sinistra): gradienti radiali molto ampi e a bassa
+// opacità, percepiti come luce e non come forme.
 
 export function GlassBackdrop({ style }: { style?: StyleProp<ViewStyle> }) {
   const { colors, isDark } = useGlassPalette();
-  const a = isDark ? 1 : 0.5;
+  const a = isDark ? 1 : 0.55;
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { overflow: "hidden" }, style]}>
       <LinearGradient
@@ -58,9 +60,27 @@ export function GlassBackdrop({ style }: { style?: StyleProp<ViewStyle> }) {
         locations={[0, 0.5, 1]}
         style={StyleSheet.absoluteFill}
       />
-      <AmbientGlow color={colors.cyan} alpha={0.15 * a} size={340} style={{ top: "6%", right: -150 }} />
-      <AmbientGlow color={colors.brandSecondary} alpha={0.13 * a} size={320} style={{ top: "40%", left: -170 }} />
-      <AmbientGlow color={colors.warning} alpha={0.07 * a} size={280} style={{ bottom: "4%", right: -110 }} />
+      <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} preserveAspectRatio="none" viewBox="0 0 100 100">
+        <Defs>
+          <RadialGradient id="pause-bd-cyan" cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={colors.cyan} stopOpacity={0.16 * a} />
+            <Stop offset="0.5" stopColor={colors.cyan} stopOpacity={0.05 * a} />
+            <Stop offset="1" stopColor={colors.cyan} stopOpacity={0} />
+          </RadialGradient>
+          <RadialGradient id="pause-bd-violet" cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={colors.brandSecondary} stopOpacity={0.15 * a} />
+            <Stop offset="0.5" stopColor={colors.brandSecondary} stopOpacity={0.05 * a} />
+            <Stop offset="1" stopColor={colors.brandSecondary} stopOpacity={0} />
+          </RadialGradient>
+          <RadialGradient id="pause-bd-warm" cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={colors.warning} stopOpacity={0.05 * a} />
+            <Stop offset="1" stopColor={colors.warning} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+        <Ellipse cx="92" cy="8" rx="85" ry="42" fill="url(#pause-bd-cyan)" />
+        <Ellipse cx="4" cy="58" rx="80" ry="40" fill="url(#pause-bd-violet)" />
+        <Ellipse cx="80" cy="100" rx="70" ry="30" fill="url(#pause-bd-warm)" />
+      </Svg>
     </View>
   );
 }
@@ -122,7 +142,7 @@ export function GlassPressable({
           StyleSheet.absoluteFill,
           {
             borderRadius: r,
-            boxShadow: `0px 0px 22px 1px ${withAlpha(accent, isDark ? 0.30 : 0.20)}, 0px 10px 24px ${withAlpha(accent, isDark ? 0.18 : 0.10)}` as any,
+            boxShadow: `0px 0px 20px 1px ${withAlpha(accent, isDark ? 0.24 : 0.16)}, 0px 8px 22px ${withAlpha(accent, isDark ? 0.14 : 0.08)}` as any,
           },
           selStyle,
         ]}
@@ -158,16 +178,17 @@ export function GlassPressable({
           style={[StyleSheet.absoluteFill, { borderRadius: r, backgroundColor: colors.glassBgStrong }]}
         />
         <Sheen radius={r} strength={0.85} />
-        {/* Strato "attivo": tinta d'accento + bordo luminoso, in dissolvenza. */}
+        {/* Strato "attivo": luce d'accento che attraversa il vetro (mai un riempimento pieno) + bordo luminoso. */}
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, selStyle]}>
           <LinearGradient
-            colors={[withAlpha(accent, isDark ? 0.12 : 0.12), withAlpha(accent, isDark ? 0.03 : 0.03)]}
+            colors={[withAlpha(accent, 0.09), withAlpha(accent, 0.02), withAlpha(accent, 0.06)]}
+            locations={[0, 0.55, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[StyleSheet.absoluteFill, { borderRadius: r }]}
           />
           <View
-            style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1.2, borderColor: withAlpha(accent, isDark ? 0.75 : 0.65) }]}
+            style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1.2, borderColor: withAlpha(accent, isDark ? 0.7 : 0.6) }]}
           />
         </Animated.View>
         {/* Bordo base (sempre presente, sotto quello attivo). */}
@@ -219,12 +240,12 @@ export function GlassCheck({
           <Ionicons name="checkmark" size={Math.round(size * 0.62)} color="#FFFFFF" />
         </Animated.View>
       ) : idle === "chevron" ? (
-        <Ionicons name="chevron-forward" size={Math.round(size * 0.8)} color={colors.muted} />
+        <Ionicons name="chevron-forward" size={Math.round(size * 0.7)} color={withAlpha(colors.onSurface, isDark ? 0.38 : 0.45)} />
       ) : (
         <View
           style={{
             width: size, height: size, borderRadius: size / 2,
-            borderWidth: 1.5, borderColor: colors.glassBorderStrong,
+            borderWidth: 1.2, borderColor: withAlpha(colors.onSurface, isDark ? 0.28 : 0.3),
           }}
         />
       )}
@@ -246,7 +267,7 @@ type CTAProps = {
 };
 
 export function GlassCTA({
-  label, onPress, disabled, loading, icon = "arrow-forward", height = 56, style, testID,
+  label, onPress, disabled, loading, icon = "arrow-forward", height = 52, style, testID,
 }: CTAProps) {
   const { colors, tint, isDark } = useGlassPalette();
   const r = height / 2;
@@ -276,7 +297,7 @@ export function GlassCTA({
         style={[
           {
             position: "absolute", top: 4, left: 6, right: 6, bottom: -2, borderRadius: r,
-            boxShadow: `0px 0px 30px 2px ${colors.cyanGlow}, 0px 14px 30px ${withAlpha(colors.brandSecondary, isDark ? 0.35 : 0.22)}` as any,
+            boxShadow: `0px 0px 26px 1px ${colors.cyanGlowSoft}, 0px 12px 28px ${withAlpha(colors.brandSecondary, isDark ? 0.26 : 0.18)}` as any,
           },
           glowStyle,
         ]}
@@ -301,24 +322,30 @@ export function GlassCTA({
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { borderRadius: r, backgroundColor: colors.glassBgStrong }]}
         />
-        {/* Vetro tinto: viola → blu → cyan, molto delicato. */}
+        {/* Vetro tinto: viola → blu → cyan, molto delicato (la luce attraversa il vetro scuro). */}
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, tintStyle]}>
           <LinearGradient
             colors={[
-              withAlpha(colors.brandSecondary, isDark ? 0.62 : 0.78),
-              withAlpha(colors.brandSecondary, isDark ? 0.42 : 0.62),
-              withAlpha(colors.cyan, isDark ? 0.55 : 0.78),
+              withAlpha(colors.brandSecondary, isDark ? 0.40 : 0.72),
+              withAlpha(colors.brandSecondary, isDark ? 0.22 : 0.55),
+              withAlpha(colors.cyan, isDark ? 0.34 : 0.72),
             ]}
-            locations={[0, 0.45, 1]}
+            locations={[0, 0.5, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[StyleSheet.absoluteFill, { borderRadius: r }]}
           />
+          {/* Luce che risale dal basso: "illuminato dall'interno". */}
+          <LinearGradient
+            colors={["transparent", withAlpha(colors.cyan, isDark ? 0.22 : 0.16)]}
+            locations={[0.4, 1]}
+            style={[StyleSheet.absoluteFill, { borderRadius: r }]}
+          />
         </Animated.View>
-        <Sheen radius={r} />
+        <Sheen radius={r} strength={0.8} />
         <View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1, borderColor: WHITE_BORDER }]}
+          style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1, borderColor: withAlpha(colors.cyanSoft, isDark ? 0.42 : 0.5) }]}
         />
         <View
           pointerEvents="none"
@@ -340,10 +367,10 @@ export function GlassCTA({
             <ActivityIndicator color={colors.onGradient} />
           ) : (
             <>
-              <Text style={{ color: colors.onGradient, fontFamily: typography.bodyBold, fontSize: 16, letterSpacing: 0.2 }}>
+              <Text style={{ color: colors.onGradient, fontFamily: typography.bodyBold, fontSize: 15.5, letterSpacing: 0.2, textShadowColor: colors.cyanGlow, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 }}>
                 {label}
               </Text>
-              {icon ? <Ionicons name={icon as any} size={19} color={colors.onGradient} /> : null}
+              {icon ? <Ionicons name={icon as any} size={18} color={colors.onGradient} /> : null}
             </>
           )}
         </Animated.View>
