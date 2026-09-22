@@ -23,7 +23,8 @@ export function toggleInterest(prev: Set<string>, id: string): Set<string> {
 
 const GAP = 12;
 const COLS = 3;
-const TILE_RADIUS = 22;
+const TILE_RADIUS = 20;
+const TILE_H = 104;
 // Blur reale su 13 tile è costoso su Android (dimezis): lì basta la traslucenza.
 const TILE_BLUR = Platform.OS !== "android";
 
@@ -101,12 +102,16 @@ export function CategoryGrid({
               style={tileW ? { width: tileW } : styles.tileFallback}
               contentStyle={styles.tileContent}
             >
-              <View style={styles.tileTop}>
-                <CategoryOrb id={c.id} size={38} radiusOverride={12} active={active} />
-                <GlassCheck active={active} color={accent} size={18} idle="chevron" />
+              <CategoryOrb id={c.id} size={36} radiusOverride={11} active={active} />
+              <View style={styles.tileTexts}>
+                <Text style={styles.tileName} numberOfLines={2}>{c.name}</Text>
+                <Text style={styles.tileCount} numberOfLines={1}>{countFor(c)}</Text>
               </View>
-              <Text style={styles.tileName} numberOfLines={2}>{c.name}</Text>
-              <Text style={styles.tileCount} numberOfLines={1}>{countFor(c)}</Text>
+              {active ? (
+                <View style={styles.tileBadge}>
+                  <GlassCheck active color={accent} size={16} />
+                </View>
+              ) : null}
             </GlassPressable>
           );
         })}
@@ -126,10 +131,13 @@ const useStyles = makeStyles((colors) => ({
 
   grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP },
   tileFallback: { width: "31%" },
+  // Altezza FISSA: tutte le tile identiche anche se il nome va su due righe.
   tileContent: {
-    minHeight: 100, paddingHorizontal: 11, paddingTop: 11, paddingBottom: 11, gap: 2,
+    height: TILE_H, paddingHorizontal: 8, paddingTop: 10, paddingBottom: 9,
+    alignItems: "center", justifyContent: "flex-start",
   },
-  tileTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 7 },
-  tileName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 12.5, lineHeight: 16 },
-  tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 10.5, lineHeight: 13, marginTop: "auto" },
+  tileTexts: { flex: 1, alignItems: "center", justifyContent: "center", marginTop: 5, gap: 1 },
+  tileName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 12.5, lineHeight: 15, textAlign: "center" },
+  tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 10.5, lineHeight: 13, textAlign: "center" },
+  tileBadge: { position: "absolute", top: 7, right: 7 },
 }));

@@ -178,16 +178,23 @@ export function GlassPressable({
       >
         {blur ? (
           <BlurView
-            intensity={40}
+            intensity={14}
             tint={tint}
             experimentalBlurMethod="dimezisBlurView"
             style={[StyleSheet.absoluteFill, { borderRadius: r }]}
           />
         ) : null}
-        {/* Vetro blu-notte traslucido: lascia passare il bokeh. */}
+        {/* Vetro smerigliato: opacatura frosted (tinta blu-notte + velo bianco), poca sfocatura. */}
         <View
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, { borderRadius: r, backgroundColor: colors.glassTint }]}
+        />
+        <LinearGradient
+          pointerEvents="none"
+          colors={[colors.glassFrost, withAlpha(colors.surface, isDark ? 0.22 : 0)]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0.6, y: 1 }}
+          style={[StyleSheet.absoluteFill, { borderRadius: r }]}
         />
         <Sheen radius={r} strength={1} />
         {lightFrom ? (

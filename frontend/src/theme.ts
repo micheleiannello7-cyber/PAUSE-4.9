@@ -60,7 +60,8 @@ const darkBase = {
   glassSheen: "rgba(255,255,255,0.13)",     // riflesso frosted dall'alto
   // Vetro "blu notte" delle card selezionabili (interessi): tinta fredda che
   // lascia passare la luce del bokeh; bordo azzurrino appena luminoso.
-  glassTint: "rgba(120,175,255,0.085)",
+  glassTint: "rgba(120,175,255,0.10)",
+  glassFrost: "rgba(255,255,255,0.13)",     // velo smerigliato (opacatura) sulle card
   glassTintBorder: "rgba(170,215,255,0.26)",
   glassRing: "rgba(255,255,255,0.38)",      // anello selettore inattivo
   // Reading experience: bianco caldo per titolo/testo, tinta notte sull'immagine.
@@ -111,6 +112,7 @@ const lightBase: typeof darkBase = {
   glassBgLit: "rgba(255,255,255,0.62)",
   glassSheen: "rgba(255,255,255,0.80)",
   glassTint: "rgba(255,255,255,0.62)",
+  glassFrost: "rgba(255,255,255,0.55)",
   glassTintBorder: "rgba(11,14,23,0.10)",
   glassRing: "rgba(11,14,23,0.30)",
   textWarm: "#0B0E17",
