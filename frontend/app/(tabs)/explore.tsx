@@ -7,6 +7,7 @@ import { api } from "@/src/api";
 import { makeStyles, useTheme, spacing, typography } from "@/src/theme";
 import { useUserId } from "@/src/session";
 import { CategoryGrid, toggleInterest, ALL_ID } from "@/src/components/category-grid";
+import { GlassBackdrop } from "@/src/components/glass/cards";
 import { LimitBadge } from "@/src/components/limit-badge";
 import { useI18n } from "@/src/i18n";
 import { CoachTip } from "@/src/coach-tips";
@@ -50,6 +51,7 @@ export default function Explore() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      <GlassBackdrop />
       <CoachTip id="topics" text={t.tip_topics} icon="grid-outline" style={{ bottom: insets.bottom + spacing.md }} />
       <View style={styles.header}>
         <View style={styles.headerTop}>

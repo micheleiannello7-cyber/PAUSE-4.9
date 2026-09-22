@@ -1,10 +1,11 @@
-import { View, Text, Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons";
+import { useState } from "react";
+import { View, Text, LayoutChangeEvent } from "react-native";
 import { Category } from "@/src/api";
-import { makeStyles, useTheme, spacing, radius, typography } from "@/src/theme";
+import { makeStyles, useTheme, spacing, typography } from "@/src/theme";
 import { useI18n } from "@/src/i18n";
 import { CategoryOrb, GradientOrb } from "@/src/components/category-orb";
 import { catGradient } from "@/src/categories";
+import { GlassPressable, GlassCheck } from "@/src/components/glass/cards";
 
 export const ALL_ID = "all";
 
@@ -20,11 +21,14 @@ export function toggleInterest(prev: Set<string>, id: string): Set<string> {
   return next;
 }
 
-// A clean, centred 3-column picker: a full-width "any topic" card on top, then
-// uniform category tiles (icon in a coloured disc, name, count). Selecting a
-// tile tints its border/disc and drops a check badge on the icon — no loose
-// radio dots, so the grid stays tidy. `compact` is accepted for API
-// compatibility; the layout is the same everywhere.
+const GAP = 10;
+const COLS = 3;
+const TILE_RADIUS = 22;
+
+// Glass picker: a full-width "any topic" card on top, then a regular
+// 3-column grid of frosted tiles (icon orb → name → count, chevron that turns
+// into an animated check). Selection tints border/glow in the category colour.
+// `compact` is accepted for API compatibility; the layout is the same everywhere.
 export function CategoryGrid({
   categories, selected, onToggle, modes,
 }: { categories: Category[]; selected: Set<string>; onToggle: (id: string) => void; compact?: boolean; modes?: ("stories" | "lessons")[] }) {
@@ -32,6 +36,8 @@ export function CategoryGrid({
   const { t } = useI18n();
   const styles = useStyles();
   const { colors } = useTheme();
+  const [gridW, setGridW] = useState(0);
+  const tileW = gridW > 0 ? Math.floor((gridW - GAP * (COLS - 1)) / COLS) : undefined;
 
   // Count label reflects which content modes are active (curiosities / lessons
   // / both) so the numbers match what the user will actually receive.
@@ -43,60 +49,59 @@ export function CategoryGrid({
     return `${c.story_count} ${t.stories_n}`;
   };
 
+  const onLayout = (e: LayoutChangeEvent) => {
+    const w = Math.round(e.nativeEvent.layout.width);
+    if (w && w !== gridW) setGridW(w);
+  };
+
   return (
-    <View testID="category-grid">
-      <Pressable
+    <View testID="category-grid" onLayout={onLayout}>
+      <GlassPressable
         testID="chip-all"
         onPress={() => onToggle(ALL_ID)}
+        active={allActive}
+        accentColor={colors.cyan}
+        blur
+        radius={TILE_RADIUS}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: allActive }}
         accessibilityLabel={t.any_topic}
-        style={[
-          styles.allCard,
-          allActive && { borderColor: colors.cyan + "80", backgroundColor: colors.cyanGlowSoft, boxShadow: `0px 0px 18px ${colors.cyanGlow}` as any },
-        ]}
+        style={styles.allCard}
+        contentStyle={styles.allContent}
       >
-        <View pointerEvents="none" style={styles.tileHighlight} />
-        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph="all-inclusive" size={46} radiusOverride={16} active={allActive} />
+        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph="all-inclusive" size={48} radiusOverride={16} active={allActive} />
         <View style={{ flex: 1 }}>
           <Text style={styles.allName} numberOfLines={1}>{t.any_topic}</Text>
           <Text style={styles.allSub} numberOfLines={1}>{t.any_topic_sub}</Text>
         </View>
-        <Check active={allActive} color={colors.cyan} size={22} />
-      </Pressable>
+        <GlassCheck active={allActive} color={colors.cyanSoft} size={24} />
+      </GlassPressable>
 
       <View style={styles.grid}>
         {categories.map((c) => {
           const active = selected.has(c.id);
+          const accent = catGradient(c.id)[0];
           return (
-            <Pressable
+            <GlassPressable
               key={c.id}
               testID={`chip-${c.id}`}
               onPress={() => onToggle(c.id)}
+              active={active}
+              accentColor={accent}
+              radius={TILE_RADIUS}
               accessibilityRole="checkbox"
               accessibilityState={{ checked: active }}
               accessibilityLabel={`${c.name}, ${countFor(c)}`}
-              style={[
-                styles.tile,
-                active && {
-                  borderColor: c.color + "AA",
-                  backgroundColor: c.color + "18",
-                  boxShadow: `0px 0px 18px ${c.color}55, 0px 8px 22px ${c.color}33` as any,
-                },
-              ]}
+              style={tileW ? { width: tileW } : styles.tileFallback}
+              contentStyle={styles.tileContent}
             >
-              <View pointerEvents="none" style={styles.tileHighlight} />
-              <View style={styles.orbWrap}>
-                <CategoryOrb id={c.id} size={50} active={active} />
-                {active ? (
-                  <View style={[styles.badge, { backgroundColor: catGradient(c.id)[1], borderColor: colors.surface }]}>
-                    <Ionicons name="checkmark" size={10} color="#FFFFFF" />
-                  </View>
-                ) : null}
+              <View style={styles.tileTop}>
+                <CategoryOrb id={c.id} size={44} active={active} />
+                <GlassCheck active={active} color={accent} size={20} idle="chevron" />
               </View>
-              <Text style={styles.tileName} numberOfLines={2}>{c.name}</Text>
+              <Text style={[styles.tileName, active && { color: colors.onSurface }]} numberOfLines={2}>{c.name}</Text>
               <Text style={styles.tileCount} numberOfLines={1}>{countFor(c)}</Text>
-            </Pressable>
+            </GlassPressable>
           );
         })}
       </View>
@@ -104,46 +109,21 @@ export function CategoryGrid({
   );
 }
 
-function Check({ active, color, size = 18 }: { active: boolean; color: string; size?: number }) {
-  const styles = useStyles();
-  return active ? (
-    <Ionicons name="checkmark-circle" size={size} color={color} />
-  ) : (
-    <View style={[styles.emptyCheck, { width: size, height: size, borderRadius: size / 2 }]} />
-  );
-}
-
 const useStyles = makeStyles((colors) => ({
-  allCard: {
+  allCard: { marginBottom: spacing.md },
+  allContent: {
     flexDirection: "row", alignItems: "center", gap: spacing.md,
-    paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 68,
-    borderRadius: radius.lg, marginBottom: spacing.md,
-    backgroundColor: colors.glassBg, borderWidth: 1, borderColor: colors.glassBorder,
-    boxShadow: `0px 6px 18px ${colors.glassShadow}` as any,
+    paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 78,
   },
-  allOrb: { width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center" },
   allName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 16 },
-  allSub: { color: colors.muted, fontFamily: typography.body, fontSize: 12, marginTop: 2 },
-  emptyCheck: { borderWidth: 1.5, borderColor: colors.borderStrong },
+  allSub: { color: colors.muted, fontFamily: typography.body, fontSize: 12.5, marginTop: 2 },
 
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  tile: {
-    width: "31.5%", alignItems: "center", justifyContent: "flex-start", gap: 6,
-    minHeight: 104, paddingVertical: spacing.md, paddingHorizontal: 6,
-    borderRadius: radius.lg,
-    backgroundColor: colors.glassBg, borderWidth: 1, borderColor: colors.glassBorder,
-    boxShadow: `0px 8px 20px ${colors.glassShadow}` as any,
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: GAP },
+  tileFallback: { width: "31%" },
+  tileContent: {
+    minHeight: 132, padding: spacing.md, paddingBottom: spacing.md + 2, gap: 4,
   },
-  tileHighlight: {
-    position: "absolute", top: 0, left: 12, right: 12, height: 1.2,
-    backgroundColor: colors.glassHighlight, opacity: 0.5, borderRadius: 1,
-  },
-  tileOrb: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" },
-  orbWrap: { width: 50, height: 50, alignItems: "center", justifyContent: "center" },
-  badge: {
-    position: "absolute", top: -4, right: -4, width: 18, height: 18, borderRadius: 9,
-    alignItems: "center", justifyContent: "center", borderWidth: 2,
-  },
-  tileName: { color: colors.onSurface, fontFamily: typography.bodyBold, fontSize: 12, lineHeight: 15, textAlign: "center" },
-  tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 10, lineHeight: 12, textAlign: "center", marginTop: "auto" },
+  tileTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: spacing.sm },
+  tileName: { color: colors.onSurfaceSecondary, fontFamily: typography.bodyBold, fontSize: 13, lineHeight: 17 },
+  tileCount: { color: colors.muted, fontFamily: typography.body, fontSize: 11, lineHeight: 14, marginTop: "auto" },
 }));

@@ -40,3 +40,8 @@
 - Playlist portata a superfici vetro (card + righe).
 - Verificato via screenshot in dark e light: Explore, Home, Profile, Saved.
 
+
+## Iterazione — Schermata interessi (onboarding step 1) in Glass Design System
+- Nuove primitive riutilizzabili in `frontend/src/components/glass/cards.tsx`: `GlassBackdrop` (fondo notte + bagliori ambientali), `GlassPressable` (card vetro selezionabile con bordo/glow animati nel colore d'accento), `GlassCheck` (anello/chevron → check animato), `GlassCTA` (CTA vetro cyan/viola con glow e stato disabilitato).
+- `category-grid.tsx` riscritto: card "Qualsiasi argomento" grande + griglia 3 colonne (orb → nome → n° storie, chevron che diventa check). Usato sia in onboarding sia nel tab Esplora.
+- `onboarding.tsx` step 1: titolo grande con ultima parola in cyan, card modalità Curiosità/Mini lezioni in vetro, footer sfumato con GlassCTA "Inizia a scoprire". Logica invariata (verificata da testing agent, iteration_21: PASS).

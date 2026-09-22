@@ -12,9 +12,12 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { api } from "@/src/api";
 import { makeStyles, useTheme, spacing, typography, radius } from "@/src/theme";
 import { getOrCreateUserId, setOnboarded } from "@/src/session";
-import { GradientButton } from "@/src/components/gradient-button";
 import { CategoryGrid, toggleInterest } from "@/src/components/category-grid";
 import { PagerDots } from "@/src/components/pager";
+import { HighlightedTitle } from "@/src/components/highlighted-title";
+import { GlassIconButton } from "@/src/components/glass";
+import { GlassBackdrop, GlassPressable, GlassCTA } from "@/src/components/glass/cards";
+import { GradientOrb } from "@/src/components/category-orb";
 import { useI18n } from "@/src/i18n";
 
 type Mode = "stories" | "lessons";
@@ -165,8 +168,12 @@ export default function Onboarding() {
   }
 
   // ------------------------------------------------ STEP 1 — content + topics
+  // Dark cinematic + glass: fondo notte con bagliori ambientali, card vetro
+  // (modalità, "qualsiasi argomento", griglia categorie), CTA glass cyan/viola.
+  const lastWord = (t.onb_content_q.trim().split(/\s+/).pop() ?? "").replace(/[^\p{L}\p{N}]/gu, "");
   return (
     <View style={[styles.container, { paddingTop: insets.top }]} testID="onboarding-topics">
+      <GlassBackdrop />
       {isLoading ? (
         <ActivityIndicator color={colors.brand} style={{ marginTop: spacing.xxxl }} testID="onboarding-loading" />
       ) : isError || !categories ? (
@@ -196,18 +203,29 @@ export default function Onboarding() {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          <Pressable onPress={() => setStep(0)} style={styles.backLink} testID="onboarding-back" hitSlop={8}>
-            <Ionicons name="arrow-back" size={18} color={colors.muted} />
-            <Text style={styles.backLinkText}>{t.back}</Text>
-          </Pressable>
+          <Animated.View entering={FadeInDown.duration(420)} style={styles.backRow}>
+            <GlassIconButton onPress={() => setStep(0)} size={36} testID="onboarding-back" accessibilityLabel={t.back}>
+              <Ionicons name="arrow-back" size={18} color={colors.onSurface} />
+            </GlassIconButton>
+            <Pressable onPress={() => setStep(0)} hitSlop={8}>
+              <Text style={styles.backLinkText}>{t.back}</Text>
+            </Pressable>
+          </Animated.View>
 
           {/* Single, prominent title — one clear hierarchy */}
-          <Text style={styles.stepTitle}>{t.onb_content_q}</Text>
+          <Animated.View entering={FadeInDown.delay(60).duration(460)}>
+            <HighlightedTitle
+              title={t.onb_content_q}
+              highlight={[lastWord]}
+              highlightColor={colors.cyanSoft}
+              style={styles.stepTitle}
+            />
+          </Animated.View>
 
           {/* Content toggles: curiosities / mini lessons, individually or both */}
-          <View style={styles.modeRow}>
+          <Animated.View entering={FadeInUp.delay(140).duration(460)} style={styles.modeRow}>
             <ModeToggle
-              icon="bulb-outline"
+              glyph="lightbulb-on-outline"
               label={t.onb_toggle_stories}
               active={modes.has("stories")}
               onPress={() => toggleMode("stories")}
@@ -216,7 +234,7 @@ export default function Onboarding() {
               testID="onboarding-mode-stories"
             />
             <ModeToggle
-              icon="school-outline"
+              glyph="school-outline"
               label={t.onb_toggle_lessons}
               active={modes.has("lessons")}
               onPress={() => toggleMode("lessons")}
@@ -224,23 +242,33 @@ export default function Onboarding() {
               colors={colors}
               testID="onboarding-mode-lessons"
             />
-          </View>
+          </Animated.View>
 
-          <Text style={styles.sectionLabel}>{t.onb_interests_label}</Text>
-          <Text style={styles.subtitle}>{t.onb_subtitle}</Text>
-          <CategoryGrid
-            compact
-            categories={categories}
-            selected={selected}
-            modes={Array.from(modes)}
-            onToggle={(id) => setSelected((prev) => toggleInterest(prev, id))}
-          />
+          <Animated.View entering={FadeInUp.delay(220).duration(460)}>
+            <Text style={styles.sectionLabel}>{t.onb_interests_label}</Text>
+            <Text style={styles.subtitle}>{t.onb_subtitle}</Text>
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(300).duration(500)}>
+            <CategoryGrid
+              compact
+              categories={categories}
+              selected={selected}
+              modes={Array.from(modes)}
+              onToggle={(id) => setSelected((prev) => toggleInterest(prev, id))}
+            />
+          </Animated.View>
         </ScrollView>
       )}
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
-        <PagerDots count={2} index={1} style={styles.dots} testID="onboarding-dots" />
-        <GradientButton
+        <LinearGradient
+          pointerEvents="none"
+          colors={["transparent", colors.surface]}
+          locations={[0, 0.55]}
+          style={StyleSheet.absoluteFill}
+        />
+        <PagerDots count={2} index={1} color={colors.cyan} style={styles.dots} testID="onboarding-dots" />
+        <GlassCTA
           label={t.onb_cta}
           onPress={onContinue}
           disabled={!canContinue}
@@ -252,33 +280,38 @@ export default function Onboarding() {
   );
 }
 
+// Card vetro orizzontale: orb (gradiente cyan da attiva, vetro neutro da
+// inattiva) + etichetta + anello/check. Attiva = bordo cyan luminoso e glow.
 function ModeToggle({
-  icon, label, hint, active, onPress, styles, colors, testID,
+  glyph, label, active, onPress, styles, colors, testID,
 }: {
-  icon: string; label: string; hint?: string; active: boolean; onPress: () => void;
+  glyph: string; label: string; active: boolean; onPress: () => void;
   styles: any; colors: any; testID: string;
 }) {
   return (
-    <Pressable
+    <GlassPressable
       onPress={onPress}
       testID={testID}
+      active={active}
+      accentColor={colors.cyan}
+      blur
+      radius={radius.lg + 6}
       accessibilityRole="switch"
       accessibilityState={{ checked: active }}
-      style={[styles.modeCard, active && { borderColor: colors.brand, backgroundColor: colors.brand + "12" }]}
+      style={styles.modeCard}
+      contentStyle={styles.modeContent}
     >
-      <View style={styles.modeTop}>
-        <View style={[styles.modeOrb, { backgroundColor: (active ? colors.brand : colors.muted) + "1A" }]}>
-          <Ionicons name={icon as any} size={18} color={active ? colors.brand : colors.muted} />
+      {active ? (
+        <GradientOrb gradient={[colors.cyanSoft, colors.cyan]} glyph={glyph} size={36} radiusOverride={12} active glyphScale={0.58} />
+      ) : (
+        <View style={styles.modeOrbIdle}>
+          <MaterialDesignIcons name={glyph as any} size={20} color={colors.muted} />
         </View>
-        <Ionicons
-          name={active ? "checkmark-circle" : "ellipse-outline"}
-          size={20}
-          color={active ? colors.brand : colors.borderStrong}
-        />
-      </View>
-      <Text style={[styles.modeLabel, active && { color: colors.onSurface }]}>{label}</Text>
-      {hint ? <Text style={styles.modeHint}>{hint}</Text> : null}
-    </Pressable>
+      )}
+      <Text style={[styles.modeLabel, active && { color: colors.onSurface }]} numberOfLines={2}>
+        {label}
+      </Text>
+    </GlassPressable>
   );
 }
 
@@ -314,26 +347,29 @@ const useStyles = makeStyles((colors) => ({
   },
   introCtaText: { color: "#FFFFFF", fontFamily: typography.bodyBold, fontSize: 17 },
   dotsBelow: { alignSelf: "center", marginTop: spacing.md, height: 10 },
-  backLink: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: spacing.md },
-  backLinkText: { color: colors.muted, fontFamily: typography.bodyMedium, fontSize: 14 },
-  sectionLabel: { color: colors.muted, fontFamily: typography.bodyBold, fontSize: 11, letterSpacing: 1.6, marginBottom: spacing.xs },
-  stepTitle: { color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 28, lineHeight: 34, marginBottom: spacing.lg },
-  modeRow: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.xl },
-  modeCard: {
-    flex: 1, gap: 6, padding: spacing.md, borderRadius: radius.lg,
-    backgroundColor: colors.surfaceSecondary, borderWidth: 1.5, borderColor: colors.border,
+  backRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm + 2, marginBottom: spacing.lg },
+  backLinkText: { color: colors.onSurfaceTertiary, fontFamily: typography.bodyMedium, fontSize: 15 },
+  sectionLabel: { color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 11.5, letterSpacing: 2.2, marginBottom: spacing.sm },
+  stepTitle: {
+    color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 34, lineHeight: 40, marginBottom: spacing.xl,
+    textShadowColor: colors.cyanGlowSoft, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 18,
   },
-  modeTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  modeOrb: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center" },
-  modeLabel: { color: colors.onSurfaceSecondary, fontFamily: typography.bodyBold, fontSize: 15, marginTop: 2 },
-  modeHint: { color: colors.brand, fontFamily: typography.bodyMedium, fontSize: 10, letterSpacing: 0.3 },
+  modeRow: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.xl + 4 },
+  modeCard: { flex: 1 },
+  modeContent: {
+    flexDirection: "row", alignItems: "center", gap: spacing.sm + 2,
+    paddingHorizontal: spacing.md, paddingVertical: spacing.md, minHeight: 64,
+  },
+  modeOrbIdle: {
+    width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center",
+    backgroundColor: colors.glassBgLit, borderWidth: 1, borderColor: colors.glassBorder,
+  },
+  modeLabel: { flex: 1, color: colors.onSurfaceTertiary, fontFamily: typography.bodyBold, fontSize: 14, lineHeight: 18 },
   title: { color: colors.onSurface, fontFamily: typography.displayBold, fontSize: 22, lineHeight: 27, marginBottom: spacing.xs },
-  subtitle: { color: colors.muted, fontFamily: typography.body, fontSize: 13, lineHeight: 18, marginBottom: spacing.lg },
+  subtitle: { color: colors.onSurfaceTertiary, fontFamily: typography.body, fontSize: 14, lineHeight: 20, marginBottom: spacing.lg },
   dots: { alignSelf: "center", marginBottom: spacing.md },
   footer: {
     paddingHorizontal: spacing.xl, paddingTop: spacing.md,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1, borderTopColor: colors.divider,
   },
   errorWrap: {
     flex: 1, alignItems: "center", justifyContent: "center",

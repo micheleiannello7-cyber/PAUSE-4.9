@@ -101,3 +101,8 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+## Iteration 21 — Onboarding interests screen glass redesign (UI only, logic unchanged)
+- New reusable glass primitives: frontend/src/components/glass/cards.tsx (GlassBackdrop, GlassPressable, GlassCheck, GlassCTA)
+- category-grid.tsx rewritten with glass tiles (3-col grid, orb → name → count, chevron→animated check); also used by Explore tab
+- onboarding.tsx step 1 redesigned (title highlight, glass mode cards, glass CTA, glass footer)
+- To test: onboarding step 1 (all chips selectable, "all" exclusivity, mode toggles never both off, CTA disabled until selection, save + navigate to discover), Explore tab still saves interests, light theme readability.
