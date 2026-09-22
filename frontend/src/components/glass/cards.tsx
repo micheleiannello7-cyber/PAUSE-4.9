@@ -58,7 +58,7 @@ export function GlassBackdrop({ style }: { style?: StyleProp<ViewStyle> }) {
         <Image source={BOKEH} style={StyleSheet.absoluteFill} contentFit="cover" contentPosition="center" transition={300} />
         {/* Scrim leggero: tiene i testi leggibili senza spegnere il bokeh. */}
         <LinearGradient
-          colors={[withAlpha(colors.surface, 0.36), withAlpha(colors.surface, 0), withAlpha(colors.surface, 0.14)]}
+          colors={[withAlpha(colors.surface, 0.70), withAlpha(colors.surface, 0.38), withAlpha(colors.surface, 0.50)]}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
@@ -94,6 +94,7 @@ type GlassPressableProps = {
   active?: boolean;
   accentColor?: string;      // colore di bordo/glow da attiva (default cyan)
   activeStrength?: number;   // 1 = card modalità / "tutto"; ~0.75 tile categorie
+  accentIdle?: boolean;      // anche da inattiva: bordo e glow nel colore dell'icona
   lightFrom?: string;        // luce laterale costante che entra da sinistra (icona luminosa)
   radius?: number;
   blur?: boolean;            // backdrop blur reale (costoso: usare su poche card)
@@ -112,6 +113,7 @@ export function GlassPressable({
   active = false,
   accentColor,
   activeStrength = 1,
+  accentIdle = false,
   lightFrom,
   radius: r = 22,
   blur = false,
@@ -167,7 +169,9 @@ export function GlassPressable({
           {
             borderRadius: r,
             overflow: "hidden",
-            boxShadow: `0px 12px 28px ${colors.glassShadow}` as any,
+            boxShadow: accentIdle
+              ? (`0px 0px 18px ${withAlpha(accent, isDark ? 0.22 : 0.14)}, 0px 12px 28px ${colors.glassShadow}` as any)
+              : (`0px 12px 28px ${colors.glassShadow}` as any),
           },
           scaleStyle,
         ]}
@@ -215,10 +219,21 @@ export function GlassPressable({
             style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1.5, borderColor: withAlpha(accent, isDark ? 0.92 : 0.7) }]}
           />
         </Animated.View>
-        {/* Bordo base azzurrino (sempre presente, sotto quello attivo). */}
+        {accentIdle ? (
+          // Luce del colore dell'icona che entra dal bordo (in alto a sinistra) e sfuma.
+          <LinearGradient
+            pointerEvents="none"
+            colors={[withAlpha(accent, isDark ? 0.16 : 0.10), withAlpha(accent, 0)]}
+            locations={[0, 0.7]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[StyleSheet.absoluteFill, { borderRadius: r }]}
+          />
+        ) : null}
+        {/* Bordo base (sempre presente, sotto quello attivo): azzurrino, o nel colore dell'icona. */}
         <View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1, borderColor: colors.glassTintBorder }]}
+          style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1, borderColor: accentIdle ? withAlpha(accent, isDark ? 0.45 : 0.35) : colors.glassTintBorder }]}
         />
         <View
           pointerEvents="none"

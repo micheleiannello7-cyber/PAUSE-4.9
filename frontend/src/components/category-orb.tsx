@@ -7,17 +7,29 @@ import React from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
+import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { withAlpha, useTheme } from "@/src/theme";
-import { catVisual } from "@/src/categories";
+import { catVisual, IconSet } from "@/src/categories";
 
 // Bordo/riflesso bianco: sta sopra un gradiente colorato, identico in ogni tema.
 const EDGE = "rgba(255,255,255,0.34)";
-const SHEEN = "rgba(255,255,255,0.50)";
+const SHEEN = "rgba(255,255,255,0.38)";
+
+// Glyph di categoria (senza contenitore): stesso set/tratto ovunque.
+export function CatGlyph({ id, size, color }: { id?: string; size: number; color: string }) {
+  const v = catVisual(id);
+  return v.set === "ion" ? (
+    <Ionicons name={v.glyph as any} size={size} color={color} />
+  ) : (
+    <MaterialDesignIcons name={v.glyph as any} size={size} color={color} />
+  );
+}
 
 export function GradientOrb({
   gradient,
   glyph,
+  set = "mdi",
   size = 46,
   radiusOverride,
   active = false,
@@ -27,6 +39,7 @@ export function GradientOrb({
 }: {
   gradient: [string, string];
   glyph: string;
+  set?: IconSet;
   size?: number;
   radiusOverride?: number;
   active?: boolean;
@@ -48,7 +61,7 @@ export function GradientOrb({
           overflow: "hidden",
           boxShadow: `0px ${Math.round(size * 0.1)}px ${Math.round(size * 0.4)}px ${withAlpha(
             gradient[1],
-            active ? (isDark ? 0.55 : 0.3) : (isDark ? 0.38 : 0.18),
+            active ? (isDark ? 0.6 : 0.32) : (isDark ? 0.45 : 0.2),
           )}` as any,
         },
         style,
@@ -57,7 +70,7 @@ export function GradientOrb({
       {/* Base vetro, poi tinta d'accento semi-trasparente: la luce attraversa il vetro. */}
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.glassBgStrong }]} />
       <LinearGradient
-        colors={[withAlpha(gradient[0], isDark ? 0.95 : 0.95), withAlpha(gradient[1], isDark ? 0.88 : 0.9)]}
+        colors={[gradient[0], gradient[1]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -80,7 +93,11 @@ export function GradientOrb({
         style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1, borderColor: EDGE }]}
       />
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <MaterialDesignIcons name={glyph as any} size={iconSize} color={glyphColor} />
+        {set === "ion" ? (
+          <Ionicons name={glyph as any} size={iconSize} color={glyphColor} />
+        ) : (
+          <MaterialDesignIcons name={glyph as any} size={iconSize} color={glyphColor} />
+        )}
       </View>
     </View>
   );
@@ -106,6 +123,7 @@ export function CategoryOrb({
     <GradientOrb
       gradient={v.gradient}
       glyph={v.glyph}
+      set={v.set}
       size={size}
       radiusOverride={radiusOverride}
       active={active}

@@ -5,22 +5,23 @@
 // per categoria. Tutto il resto dell'app risolve l'aspetto di una categoria da
 // qui tramite `catVisual(id)` / `<CategoryOrb id=.. />`, così icone e colori
 // restano coerenti ovunque (grid, home, cover storie, tag).
-export type CatVisual = { gradient: [string, string]; glyph: string };
+export type IconSet = "mdi" | "ion";
+export type CatVisual = { gradient: [string, string]; glyph: string; set?: IconSet };
 
 export const CATEGORY_VISUALS: Record<string, CatVisual> = {
-  scienza: { gradient: ["#38E0FF", "#0066FF"], glyph: "atom" },
-  spazio: { gradient: ["#C56BFF", "#5B2BFF"], glyph: "rocket-launch-outline" },
-  tecnologia: { gradient: ["#2BE8B0", "#00A6FF"], glyph: "memory" },
-  natura: { gradient: ["#5AE388", "#00A86B"], glyph: "sprout-outline" },
-  animali: { gradient: ["#FFC24D", "#FF6D00"], glyph: "paw-outline" },
-  storia: { gradient: ["#FFA24D", "#E24E00"], glyph: "bank-outline" },
-  psicologia: { gradient: ["#FF7FB2", "#B5179E"], glyph: "brain" },
-  "corpo-umano": { gradient: ["#FF7285", "#FF006A"], glyph: "heart-pulse" },
-  cultura: { gradient: ["#46CCFF", "#3A7BFF"], glyph: "book-open-variant-outline" },
-  curiosita: { gradient: ["#D08BFF", "#7A3DFF"], glyph: "lightbulb-on-outline" },
-  economia: { gradient: ["#FFDA57", "#FF9E00"], glyph: "chart-line" },
-  arte: { gradient: ["#FF86E8", "#B14BFF"], glyph: "palette-outline" },
-  geografia: { gradient: ["#5AC8FF", "#2E6BFF"], glyph: "compass-outline" },
+  scienza: { gradient: ["#3B9BFF", "#1E4BFF"], glyph: "atom" },
+  spazio: { gradient: ["#B45CFF", "#6A2BFF"], glyph: "planet-outline", set: "ion" },
+  tecnologia: { gradient: ["#22E0FF", "#0A8CFF"], glyph: "memory" },
+  natura: { gradient: ["#4CE07A", "#0FA958"], glyph: "sprout-outline" },
+  animali: { gradient: ["#FFB347", "#FF6A00"], glyph: "paw" },
+  storia: { gradient: ["#FF9F3D", "#E0561A"], glyph: "bank-outline" },
+  psicologia: { gradient: ["#FF6FC0", "#C21FA8"], glyph: "brain" },
+  "corpo-umano": { gradient: ["#FF5F7E", "#F0005E"], glyph: "heart-pulse" },
+  cultura: { gradient: ["#4FC3FF", "#2A6CFF"], glyph: "book-open-variant-outline" },
+  curiosita: { gradient: ["#B47CFF", "#6A2BFF"], glyph: "lightbulb-on-outline" },
+  economia: { gradient: ["#FFD23F", "#FF9500"], glyph: "chart-line" },
+  arte: { gradient: ["#FF7AE0", "#B33BFF"], glyph: "palette-outline" },
+  geografia: { gradient: ["#4FC3FF", "#2A6CFF"], glyph: "compass-outline" },
 };
 
 // Fallback neutro cyan (categorie aggiunte a runtime senza mappa dedicata).

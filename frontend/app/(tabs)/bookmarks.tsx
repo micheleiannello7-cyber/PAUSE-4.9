@@ -21,8 +21,7 @@ import { LimitBadge } from "@/src/components/limit-badge";
 import { KindBadge } from "@/src/components/kind-badge";
 import { LessonCover } from "@/src/components/lesson-cover";
 import { CategoryOrb } from "@/src/components/category-orb";
-import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
-import { catGlyph } from "@/src/categories";
+import { CatGlyph } from "@/src/components/category-orb";
 import { useI18n } from "@/src/i18n";
 import { CoachTip } from "@/src/coach-tips";
 
@@ -219,7 +218,7 @@ function CatChip({
           : { backgroundColor: colors.surfaceSecondary, borderColor: colors.border },
       ]}
     >
-      {catId ? <MaterialDesignIcons name={catGlyph(catId) as any} size={13} color={active ? color : colors.muted} /> : null}
+      {catId ? <CatGlyph id={catId} size={13} color={active ? color : colors.muted} /> : null}
       <Text style={[styles.catChipText, { color: active ? color : colors.muted }]}>{label}</Text>
     </Pressable>
   );

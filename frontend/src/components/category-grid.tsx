@@ -92,6 +92,7 @@ export function CategoryGrid({
               active={active}
               accentColor={accent}
               activeStrength={0.7}
+              accentIdle
               blur={TILE_BLUR}
               radius={TILE_RADIUS}
               accessibilityRole="checkbox"

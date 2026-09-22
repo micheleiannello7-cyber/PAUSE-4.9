@@ -5,11 +5,10 @@
 //   - MetaPill:    informazione secondaria (es. "3 min")
 import { View, Text, StyleProp, ViewStyle } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import MaterialDesignIcons from "@react-native-vector-icons/material-design-icons";
 
 import { makeStyles, useTheme, typography } from "@/src/theme";
 import { GlassPill } from "@/src/components/glass";
-import { catGlyph } from "@/src/categories";
+import { CatGlyph } from "@/src/components/category-orb";
 
 export function CategoryTag({
   name, icon, color, categoryId, style, testID = "category-tag",
@@ -26,7 +25,7 @@ export function CategoryTag({
       height={34}
     >
       <View style={[styles.iconWrap, { backgroundColor: color + "33", boxShadow: `0px 0px 10px ${color}66` as any }]}>
-        <MaterialDesignIcons name={catGlyph(categoryId) as any} size={13} color={color} />
+        <CatGlyph id={categoryId} size={13} color={color} />
       </View>
       <Text style={styles.tagText} numberOfLines={1} ellipsizeMode="tail">{label}</Text>
     </GlassPill>
