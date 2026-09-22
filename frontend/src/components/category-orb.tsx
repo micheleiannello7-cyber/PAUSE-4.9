@@ -13,8 +13,7 @@ import { withAlpha, useTheme } from "@/src/theme";
 import { catVisual, IconSet } from "@/src/categories";
 
 // Bordo/riflesso bianco: sta sopra un gradiente colorato, identico in ogni tema.
-const EDGE = "rgba(255,255,255,0.34)";
-const SHEEN = "rgba(255,255,255,0.38)";
+const EDGE = "rgba(255,255,255,0.38)";
 
 // Glyph di categoria (senza contenitore): stesso set/tratto ovunque.
 export function CatGlyph({ id, size, color }: { id?: string; size: number; color: string }) {
@@ -47,7 +46,7 @@ export function GradientOrb({
   glyphScale?: number;
   style?: StyleProp<ViewStyle>;
 }) {
-  const { colors, scheme } = useTheme();
+  const { scheme } = useTheme();
   const isDark = scheme === "dark";
   const r = radiusOverride ?? Math.round(size * 0.3);
   const iconSize = Math.round(size * glyphScale);
@@ -59,38 +58,48 @@ export function GradientOrb({
           height: size,
           borderRadius: r,
           overflow: "hidden",
-          boxShadow: `0px ${Math.round(size * 0.1)}px ${Math.round(size * 0.4)}px ${withAlpha(
+          boxShadow: `0px ${Math.round(size * 0.12)}px ${Math.round(size * 0.44)}px ${withAlpha(
             gradient[1],
-            active ? (isDark ? 0.6 : 0.32) : (isDark ? 0.45 : 0.2),
+            active ? (isDark ? 0.72 : 0.42) : (isDark ? 0.55 : 0.28),
           )}` as any,
         },
         style,
       ]}
     >
-      {/* Base vetro, poi tinta d'accento semi-trasparente: la luce attraversa il vetro. */}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.glassBgStrong }]} />
+      {/* Base: gradiente d'accento pieno e vivido, diagonale (icona iOS "squircle"). */}
       <LinearGradient
         colors={[gradient[0], gradient[1]]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={{ x: 0.12, y: 0 }}
+        end={{ x: 0.88, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
+      {/* Riflesso lucido concentrato in alto-sinistra: dà il volume "vetro liquido". */}
       <LinearGradient
         pointerEvents="none"
-        colors={[SHEEN, "rgba(255,255,255,0)"]}
-        locations={[0, 0.58]}
+        colors={["rgba(255,255,255,0.60)", "rgba(255,255,255,0.14)", "rgba(255,255,255,0)"]}
+        locations={[0, 0.34, 0.56]}
+        start={{ x: 0.2, y: 0 }}
+        end={{ x: 0.55, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      {/* Luce dal basso, molto leggera: "illuminato dall'interno". */}
+      {/* Profondità: ombra interna morbida in basso → l'icona "sporge". */}
       <LinearGradient
         pointerEvents="none"
-        colors={["rgba(255,255,255,0)", withAlpha(gradient[0], active ? 0.35 : 0.18)]}
-        locations={[0.55, 1]}
+        colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.24)"]}
+        locations={[0.62, 1]}
         style={StyleSheet.absoluteFill}
       />
+      {/* Bordo luminoso sottile + linea di riflesso sul bordo superiore. */}
       <View
         pointerEvents="none"
         style={[StyleSheet.absoluteFill, { borderRadius: r, borderWidth: 1, borderColor: EDGE }]}
+      />
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute", top: 1, left: r * 0.55, right: r * 0.55, height: 1,
+          backgroundColor: "rgba(255,255,255,0.65)", borderRadius: 1,
+        }}
       />
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         {set === "ion" ? (
