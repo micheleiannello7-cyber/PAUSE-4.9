@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, LayoutChangeEvent, Platform } from "react-native";
+import { View, Text, LayoutChangeEvent } from "react-native";
 import { Category } from "@/src/api";
 import { makeStyles, useTheme, spacing, typography } from "@/src/theme";
 import { useI18n } from "@/src/i18n";
@@ -25,8 +25,8 @@ const GAP = 12;
 const COLS = 3;
 const TILE_RADIUS = 20;
 const TILE_H = 104;
-// Blur reale su 13 tile è costoso su Android (dimezis): lì basta la traslucenza.
-const TILE_BLUR = Platform.OS !== "android";
+// Nessun blur sulle tile: vetro limpido, il fondo passa nitido.
+const TILE_BLUR = false;
 
 // Glass picker: a full-width "any topic" card on top, then a regular
 // 3-column grid of frosted tiles (icon orb → name → count, chevron that turns

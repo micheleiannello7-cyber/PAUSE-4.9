@@ -167,7 +167,7 @@ export function GlassPressable({
             borderRadius: r,
             overflow: "hidden",
             boxShadow: accentIdle
-              ? (`0px 0px 18px ${withAlpha(accent, isDark ? 0.22 : 0.14)}, 0px 12px 28px ${colors.glassShadow}` as any)
+              ? (`0px 0px 18px ${withAlpha(accent, isDark ? 0.35 : 0.22)}, 0px 12px 28px ${colors.glassShadow}` as any)
               : (`0px 12px 28px ${colors.glassShadow}` as any),
           },
           scaleStyle,
